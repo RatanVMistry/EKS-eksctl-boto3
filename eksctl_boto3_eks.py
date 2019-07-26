@@ -169,3 +169,5 @@ def scale_cluster():
 #scale_cluster()
 #scale_cluster()
 #delete_cluster()
+#need to add funct for wait till delete cluster and scale the clsuer
+#right now its just giveing outup before actual action completed
