@@ -62,7 +62,7 @@ def is_cluster_available(name, region):
     #    return True
 
 
-def createCluster():
+def create_cluster():
 
     cluster_name = input("Enter cluster name : ")
     cluster_region = input("Enter cluster region : ")
@@ -82,7 +82,7 @@ def createCluster():
         print_cluster_information(cluster_name)
 
 
-def deleteCluster():
+def delete_cluster():
     f = True
     while f == True:
         clusters = list_clusters_name()
@@ -100,13 +100,72 @@ def deleteCluster():
         else:
             print("wrong cluster name, please enter correct name ")
 
+
+def get_nodegroup_info(cluster_name):
+    command = "eksctl get nodegroup --cluster {cluster} -o json".format(cluster=cluster_name)
+    output = subprocess_cmd(command)
+    return json.loads(output)
+
+
+def print_nodegroupe_info(nodegroup_info):
+    for nodegroup in nodegroup_info:
+        print("Cluster Name : {Cluster}".format(Cluster=nodegroup['Cluster']))
+        print("Stack Name : {StackName}".format(StackName=nodegroup['StackName']))
+        print("Nodegroup name : {name}".format(name=nodegroup['Name']))
+        print("Maximum size of nodegroup : {max}".format(max=nodegroup['MaxSize']))
+        print("Minimum size of nodegroup : {min}".format(min=nodegroup['MinSize']))
+        print("Current size of nodegroup : {current}".format(current=nodegroup['DesiredCapacity']))
+        print("Instance type for nodegroup instances : {instanceType}".format(instanceType=nodegroup['InstanceType']))
+        print("Image Id for instance in nodegroup : {image_id}".format(image_id=nodegroup['ImageID']))
+
+
+def scale_cluster():
+    print_clusters_name(list_clusters_name())
+    cluster_name = input ("Enter cluster name which you want to scale up (case sensitive) : ")
+    nodegroup_info = get_nodegroup_info(cluster_name)
+    current_node = nodegroup_info[0]['DesiredCapacity']
+    max_node = nodegroup_info[0]['MaxSize']
+    min_node = nodegroup_info[0]['MinSize']
+    nodegroup_name = nodegroup_info[0]['Name']
+
+    print(type(max))
+    print("Current size of nodegroup = {current}".format(current=current_node))
+    print("You can scale nodegroup between {min} and {max}".format(min=min_node, max=max_node))
+
+    node_number = int(input("Enter number to scale :"))
+    if node_number <= max_node and node_number >= min_node:
+        print("Scale will start")
+        command = "eksctl scale nodegroup --cluster {cluster_name} --name {nodegroup_name} --nodes {node_numbers}".format(cluster_name=cluster_name, nodegroup_name=nodegroup_name, node_numbers=node_number)
+        output = subprocess_cmd(command)
+        print(output)
+        print("Scaling done...")
+
+    else:
+        print("Enter wrong number. Please enter number in range of {min} - {max} ".format(
+            min=nodegroup_info[0]['MinSize'], max=nodegroup_info[0]['MaxSize']))
+
+    #print(nodegroup_info)
+
+
 #clustersInfo = list_clusters_name()
 #print_clusters_name(clustersInfo)
 
 #for cluster in clustersInfo['clusters']:
 #    print_cluster_information(cluster)
 
-createCluster()
-deleteCluster()
+#create_cluster()
+#delete_cluster()
+
+
 #l = describe_clusters("prod")
 #print(l)
+
+#node_groupe = get_nodegroup_info("prod")
+#print_nodegroupe_info(node_groupe)
+#clusters = list_clusters_name()
+#print_clusters_name(clusters)
+#delete_cluster()
+#create_cluster()
+#scale_cluster()
+#scale_cluster()
+#delete_cluster()
